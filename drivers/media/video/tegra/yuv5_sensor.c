@@ -47,8 +47,8 @@
 #define ONE_TIME_TABLE_CHECK_DATA 0x086C
 
 #define MAX_RETRIES 3
-extern int tegra_camera_enable_csi_power(void);
-extern int tegra_camera_disable_csi_power(void);
+//extern int tegra_camera_enable_csi_power(void);
+//extern int tegra_camera_disable_csi_power(void);
 
 static int preview_mode = SENSOR_MODE_1280x960;
 static u16 lowlight_reg = 0xB804;
@@ -959,6 +959,8 @@ static int sensor_probe(struct i2c_client *client,
 {
 	int err;
 #if !defined(CONFIG_MACH_VANGOGH)
+	extern void extern_tegra_camera_enable_vi(void);
+	extern void extern_tegra_camera_disable_vi(void);
 	int device_check_ret, retry = 0;
 	u16 read_val = 0;
 #endif
@@ -976,7 +978,8 @@ static int sensor_probe(struct i2c_client *client,
 	info->i2c_client = client;
 
 #if !defined(CONFIG_MACH_VANGOGH)
-	tegra_camera_enable_csi_power();
+	extern_tegra_camera_enable_vi();
+	//tegra_camera_enable_csi_power();
 	if (info->pdata && info->pdata->power_on)
 		info->pdata->power_on();
 
@@ -990,7 +993,8 @@ static int sensor_probe(struct i2c_client *client,
 
 	if (info->pdata && info->pdata->power_off)
 		info->pdata->power_off();
-	tegra_camera_disable_csi_power();
+	extern_tegra_camera_disable_vi();
+	//tegra_camera_disable_csi_power();
 
 	if (device_check_ret != 0) {
 		pr_err("yuv5 %s: cannot read chip_id\n", __func__);

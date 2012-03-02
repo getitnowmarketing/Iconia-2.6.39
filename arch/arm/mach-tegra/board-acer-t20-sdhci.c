@@ -35,8 +35,10 @@
 #define VENTANA_WLAN_RST	TEGRA_GPIO_PK6
 #define VENTANA_WLAN_IRQ	TEGRA_GPIO_PS0
 
+#if defined(CONFIG_MACH_PICASSO_E)
 #define VENTANA_BT_RST	TEGRA_GPIO_PU0
 #define VENTANA_BCM_VDD	TEGRA_GPIO_PD1
+#endif
 
 static void (*wifi_status_cb)(int card_present, void *dev_id);
 static void *wifi_status_cb_devid;
@@ -214,6 +216,7 @@ static int ventana_wifi_set_carddetect(int val)
 	return 0;
 }
 
+#if defined(CONFIG_MACH_PICASSO_E)
 static int wifi_sdio_gpio[] = {
 	TEGRA_GPIO_PZ0,
 	TEGRA_GPIO_PZ1,
@@ -256,6 +259,7 @@ static int disable_wifi_sdio_func(void)
 	}
 	return 0;
 }
+#endif
 
 static int ventana_wifi_power(int on)
 {
@@ -265,7 +269,7 @@ static int ventana_wifi_power(int on)
 		gpio_direction_input(VENTANA_WLAN_IRQ);
 	else
 		gpio_direction_output(VENTANA_WLAN_IRQ, 0);
-
+#if defined(CONFIG_MACH_PICASSO_E)
 	/* Set VDD high at first before turning on*/
 	if (on) {
 		enable_wifi_sdio_func();
@@ -274,7 +278,7 @@ static int ventana_wifi_power(int on)
 			pr_err("%s: VDD=1\n", __func__);
 		}
 	}
-
+#endif
 	mdelay(50);
 	gpio_set_value(VENTANA_WLAN_RST, on);
 	mdelay(80);
@@ -283,7 +287,7 @@ static int ventana_wifi_power(int on)
 		clk_enable(wifi_32k_clk);
 	else
 		clk_disable(wifi_32k_clk);
-
+#if defined(CONFIG_MACH_PICASSO_E)
 	/*
 	 * When BT and Wi-Fi turn off at the same time, the last one must do the VDD off action.
 	 * So BT/WI-FI must check the other's status in order to set VDD low at last.
@@ -295,6 +299,7 @@ static int ventana_wifi_power(int on)
 		}
 		disable_wifi_sdio_func();
 	}
+#endif
 	return 0;
 }
 
@@ -321,16 +326,18 @@ static int __init ventana_wifi_init(void)
 	tegra_gpio_enable(VENTANA_WLAN_RST);
 
 	gpio_direction_output(VENTANA_WLAN_RST, 0);
-
+#if defined(CONFIG_MACH_PICASSO_E)
 	gpio_request(VENTANA_BCM_VDD, "bcm_vdd");
 	tegra_gpio_enable(VENTANA_BCM_VDD);
 	gpio_direction_output(VENTANA_BCM_VDD, 0);
+#endif
 	platform_device_register(&ventana_wifi_device);
 
 	device_init_wakeup(&ventana_wifi_device.dev, 1);
 	device_set_wakeup_enable(&ventana_wifi_device.dev, 0);
-
+#if defined(CONFIG_MACH_PICASSO_E)
 	disable_wifi_sdio_func();
+#endif
 	return 0;
 }
 int __init ventana_sdhci_init(void)

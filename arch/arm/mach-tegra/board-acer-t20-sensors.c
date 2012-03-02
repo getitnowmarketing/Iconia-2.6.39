@@ -33,6 +33,7 @@
 
 #include <linux/delay.h>
 #include <linux/i2c.h>
+#include <linux/akm8975.h>
 #include <linux/mpu.h>
 #include <linux/i2c/pca954x.h>
 #include <linux/i2c/pca953x.h>
@@ -55,11 +56,13 @@
 #include "board-acer-t20.h"
 #include "cpu-tegra.h"
 
+#define AL3000A_IRQ_GPIO	TEGRA_GPIO_PZ2
 #define AKM8975_IRQ_GPIO	TEGRA_GPIO_PN5
 #define CAMERA_POWER_GPIO	TEGRA_GPIO_PV4
 #define CAMERA_CSI_MUX_SEL_GPIO	TEGRA_GPIO_PBB4
 #define CAMERA_FLASH_ACT_GPIO	TEGRA_GPIO_PD2
 #define NCT1008_THERM2_GPIO	TEGRA_GPIO_PN6
+//#define CAMERA_FLASH_STRB_GPIO	TEGRA_GPIO_PA0
 #define AC_PRESENT_GPIO		TEGRA_GPIO_PV3
 
 
@@ -551,7 +554,14 @@ static struct nvc_torch_pin_state ventana_ssl3250a_pinstate = {
 	.mask		= 0x0040, /* VGP6 */
 	.values		= 0x0040,
 };
-#endif /* !CONFIG_ARCH_ACER_T20 */
+#endif /* CONFIG_TORCH_SSL3250A */
+
+static void ventana_al3000a_init(void)
+{
+	tegra_gpio_enable(AL3000A_IRQ_GPIO);
+	gpio_request(AL3000A_IRQ_GPIO, "al3000a_ls");
+	gpio_direction_input(AL3000A_IRQ_GPIO);
+}
 
 #ifdef CONFIG_SENSORS_AK8975
 static void ventana_akm8975_init(void)
@@ -586,6 +596,13 @@ static struct nct1008_platform_data ventana_nct1008_pdata = {
 	.shutdown_local_limit = 90,
 	.throttling_ext_limit = 65,
 	.alarm_fn = tegra_throttling_enable,
+};
+
+static const struct i2c_board_info ventana_i2c0_board_info[] = {
+	{
+		I2C_BOARD_INFO("al3000a_ls", 0x1C),
+		.irq = TEGRA_GPIO_TO_IRQ(TEGRA_GPIO_PZ2),
+	},
 };
 
 static const struct i2c_board_info ventana_i2c2_board_info[] = {
@@ -810,7 +827,12 @@ static void ventana_mpuirq_init(void)
 int __init ventana_sensors_init(void)
 {
 	struct board_info BoardInfo;
-
+#ifdef CONFIG_AL3000A_LIGHT_SENSOR
+	ventana_al3000a_init();
+#endif
+#ifdef CONFIG_SENSORS_AK8975
+	ventana_akm8975_init();
+#endif
 #ifdef CONFIG_MPU_SENSORS_MPU3050
 	ventana_mpuirq_init();
 #endif

@@ -356,8 +356,10 @@ struct early_suspend ventana_panel_early_suspender;
 
 static void ventana_panel_early_suspend(struct early_suspend *h)
 {
+#if defined(CONFIG_MACH_PICASSO_E)
 	gpio_set_value(ventana_bl_enb, 0);
 	msleep(210);
+#endif	
 	/* power down LCD, add use a black screen for HDMI */
 	if (num_registered_fb > 0)
 		fb_blank(registered_fb[0], FB_BLANK_POWERDOWN);

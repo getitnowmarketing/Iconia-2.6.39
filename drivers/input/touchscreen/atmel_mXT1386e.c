@@ -25,6 +25,8 @@
 #include <linux/input/mxt1386e_pm.h>
 #elif defined(CONFIG_MACH_PICASSO2)
 #include <linux/input/mxt1386e_p2.h>
+#elif defined (CONFIG_MACH_PICASSO)
+#include <linux/input/mxt1386e_p.h>
 #endif
 
 #define ATMEL1386E_IOCTL_MAGIC 't'
@@ -254,9 +256,12 @@ static int mxt_write_block(struct i2c_client *client, u16 addr, u16 length, u8 *
 			if (i == (length + 2)) {
 				mxt_debug(DEBUG_ERROR, "mXT1386E i2c write %d time\n", j+2);
 				return length;
+
 			}
 		}
+
 		/* HW reset for ESD test */
+/*
 		mxt_debug(DEBUG_ERROR, "TOUCH HW RESET in i2c write\n");
 		gpio_set_value(TP_LDO_EN, 0);
 		gpio_set_value(TP_RST, 0);
@@ -265,8 +270,9 @@ static int mxt_write_block(struct i2c_client *client, u16 addr, u16 length, u8 *
 		msleep(10);
 		gpio_set_value(TP_RST, 1);
 		msleep(100);
-
+*/
 		mxt_debug(DEBUG_ERROR, "mXT1386E: i2c write failed\n");
+
 		return -1;
 	}
 }
@@ -296,9 +302,12 @@ static int mxt_read_block(struct i2c_client *client, u16 addr, u16 length, u8 *v
 			if (i2c_transfer(adapter, msg, 2) == 2) {
 				mxt_debug(DEBUG_ERROR, "mXT1386E: i2c read %d time\n", i+2);
 				return length;
+
 			}
 		}
+
 		/* HW reset for ESD test*/
+/*
 		mxt_debug(DEBUG_ERROR, "TOUCH HW RESET in i2c read\n");
 		gpio_set_value(TP_LDO_EN, 0);
 		gpio_set_value(TP_RST, 0);
@@ -307,8 +316,9 @@ static int mxt_read_block(struct i2c_client *client, u16 addr, u16 length, u8 *v
 		msleep(10);
 		gpio_set_value(TP_RST, 1);
 		msleep(100);
-
+*/
 		mxt_debug(DEBUG_ERROR, "mXT1386E: i2c read failed\n");
+
 		return -1;
 	}
 }
@@ -1287,6 +1297,7 @@ static int ATMEL_WriteConfig(struct mxt_data *mxt)
 	if (mxt_write_block(mxt->client, T43_OBJAddr,  7, T43OBJ) < 0)
 		return -1;
 
+/*
 	if (acer_board_type == BOARD_PICASSO_M) {
 		if (mxt_write_block(mxt->client, T46_OBJAddr,  9, T46OBJ) < 0)
 			return -1;
@@ -1299,9 +1310,10 @@ static int ATMEL_WriteConfig(struct mxt_data *mxt)
 				return -1;
 		}
 	} else {
+*/
 		if (mxt_write_block(mxt->client, T46_OBJAddr,  9, T46OBJ) < 0)
 			return -1;
-	}
+//	}
 
 	if (mxt_write_block(mxt->client, T47_OBJAddr, 10, T47OBJ) < 0)
 		return -1;
@@ -1554,10 +1566,11 @@ static long ATMEL1386E_ioctl(struct file *file, unsigned int cmd, unsigned long 
 			break;
 
 		case ATMEL1386E_CHGPinStatus:
-
+			/*
 			status = gpio_get_value(TP_INT);
 			if (copy_to_user((void*)argp, &status, sizeof(status)))
 				return -EFAULT;
+			*/
 			break;
 
 		case ATMEL1386E_T6_REGVALUE:

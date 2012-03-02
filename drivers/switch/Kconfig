@@ -18,6 +18,14 @@ config ROTATELOCK
 	tristate "RotationLock Switch support"
 	default n
 
+config DOCK_V1
+	tristate "Dock Swith support"
+	default n
+
+config PSENSOR
+	tristate "P-Sensor Switch support"
+	default n
+
 config DOCK_V2
 	tristate "Acer Dock 2 support"
 	default n

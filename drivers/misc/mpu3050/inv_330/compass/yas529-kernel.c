@@ -36,10 +36,10 @@
 #include <linux/i2c.h>
 #endif
 
-#include "mpu.h"
-#include "mlos.h"
+#include <linux/mpu.h>
+#include "../mlos.h"
 
-#include <log.h>
+#include "../log.h"
 #undef MPL_LOG_TAG
 #define MPL_LOG_TAG "MPL-acc"
 

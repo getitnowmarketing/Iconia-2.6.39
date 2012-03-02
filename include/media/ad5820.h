@@ -13,7 +13,20 @@
 
 #include <linux/ioctl.h>  /* For IOCTL macros */
 
-#define AD5820_IOCTL_SET_POSITION  _IOW('o', 1, __u16)
+//#define AD5820_IOCTL_SET_POSITION  _IOW('o', 1, __u16)
+
+#define AD5820_IOCTL_GET_CONFIG   _IOR('o', 1, struct ad5820_config)
+#define AD5820_IOCTL_SET_POSITION _IOW('o', 2, u32)
+
+struct ad5820_config {
+       __u32 settle_time;
+       __u32 actuator_range;
+       __u32 pos_low;
+       __u32 pos_high;
+       float focal_length;
+       float fnumber;
+       float max_aperture;
+};
 
 #endif  /* __AD5820_H__ */
 
